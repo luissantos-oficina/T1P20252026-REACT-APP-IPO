@@ -1,5 +1,7 @@
 import { Routes, Route, Link } from 'react-router-dom';
 
+const API_BASE = '';
+
 function App() {
   return (
     <div>
@@ -35,7 +37,7 @@ function Inicio() {
 }
 
 function ClientesList() {
-  
+
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mensagemErro, setMensagemErro] = useState(null);
