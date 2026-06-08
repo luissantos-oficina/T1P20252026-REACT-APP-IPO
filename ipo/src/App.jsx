@@ -19,7 +19,7 @@ function App() {
           <Route path="/" element={<Inicio />} />
           <Route path="/clientes" element={<ClientesList />} />
           <Route path="/veiculos" element={<VeiculosList />} />
-          <Route path="/inspecoes" element={<InspecoesList/>} />
+          <Route path="/inspecoes" element={<InspecoesList />} />
         </Routes>
       </div>
     </div>
@@ -29,20 +29,84 @@ function App() {
 // Estas páginas serão criadas nas próximas etapas
 function Inicio() {
   return (<div className="jumbotron">
-            <h1 className="text-center">Centro de Inspeções de Automóveis</h1>
-            <p className="text-center">IPO - ESDS1</p>
-          </div>);
+    <h1 className="text-center">Centro de Inspeções de Automóveis</h1>
+    <p className="text-center">IPO - ESDS1</p>
+  </div>);
 }
 
 function ClientesList() {
-  return (<h2>
-              Página de Clientes 
-              <button className="btn btn-primary">
-                <i className="fa fa-plus"></i> 
-                Novo Cliente
-              </button>
-          </h2>);
+  
+  const [clientes, setClientes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [mensagemErro, setMensagemErro] = useState(null);
+  const navigate = useNavigate();
+  useEffect(() => {
+    fetchData();
+  }, []);
+  const fetchData = async () => {
+    try {
+      const response = await fetch(API_BASE + '/clientes.php');
+      const data = await response.json();
+      if (data.success) {
+        setClientes(data.data);
+      } else {
+        setMensagemErro(data.message);
       }
+    } catch {
+      setMensagemErro('Erro ao carregar clientes');
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (loading) return <p>Carregando...</p>;
+  return (
+    <>
+      <div className="row">
+        <div className="col-6">
+          <h2>Clientes</h2>
+        </div>
+        <div className="col-6 text-right">
+          <button className="btn btn-dark ml-3" ><i className="fa fa-plus-square" aria-hidden="true"></i> Novo Cliente</button>
+          <button className="btn btn-light ml-3" onClick={fetchData}><i className="fa fa-refresh" aria-hidden="true"></i> Atualizar</button>
+        </div>
+      </div>
+      {mensagemErro && (
+        <div className="alert alert-danger alert-dismissible fade show" role="alert">
+          {mensagemErro}
+          <button type="button" className="close" onClick={() => setMensagemErro('')} aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      )}
+      <table className="table table-striped">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nome</th>
+            <th>Morada</th>
+            <th>NIF</th>
+            <th>Opções</th>
+          </tr>
+        </thead>
+        <tbody>
+          {clientes.map(cliente => (
+            <tr key={cliente.codcli}>
+              <td>{cliente.codcli}</td>
+              <td>{cliente.nome}</td>
+              <td>{cliente.morada}</td>
+              <td>{cliente.nif}</td>
+              <td style={{ whiteSpace: 'nowrap' }}>
+                <button className="btn btn-dark btn-sm mr-2" ><i className='fa fa-eye' aria-hidden='true'></i></button>
+                <button className="btn btn-dark btn-sm mr-2" ><i className='fa fa-pencil' aria-hidden='true'></i></button>
+                <button className="btn btn-dark btn-sm" ><i className='fa fa-trash' aria-hidden='true'></i></button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
 
 function VeiculosList() {
   return (<h2>Página de Veículos</h2>);
