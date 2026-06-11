@@ -1,6 +1,7 @@
-import { Routes, Route, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Routes, Route, Link } from 'react-router-dom';
 
-const API_BASE = '';
+const API_BASE = 'https://effective-capybara-v665669654wghp5gj-3000.app.github.dev';
 
 function App() {
   return (
@@ -41,13 +42,32 @@ function ClientesList() {
   const [clientes, setClientes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [mensagemErro, setMensagemErro] = useState(null);
+
   const navigate = useNavigate();
   useEffect(() => {
     fetchData();
   }, []);
+
+
+
+  const confirmDelete = async (id) => {
+    try {
+      const response = await fetch(API_BASE + '/clientes/' + id, { method: 'DELETE' });
+      const data = await response.json();
+      if (data.success) {
+        fetchData();
+      } else {
+        setMensagemErro(data.message);
+      }
+    } catch {
+      setMensagemErro('Erro ao eliminar cliente');
+    }
+  };
+
+
   const fetchData = async () => {
     try {
-      const response = await fetch(API_BASE + '/clientes.php');
+      const response = await fetch(API_BASE + '/clientes');
       const data = await response.json();
       if (data.success) {
         setClientes(data.data);
@@ -98,9 +118,14 @@ function ClientesList() {
               <td>{cliente.morada}</td>
               <td>{cliente.nif}</td>
               <td style={{ whiteSpace: 'nowrap' }}>
+                
                 <button className="btn btn-dark btn-sm mr-2" ><i className='fa fa-eye' aria-hidden='true'></i></button>
+                
                 <button className="btn btn-dark btn-sm mr-2" ><i className='fa fa-pencil' aria-hidden='true'></i></button>
-                <button className="btn btn-dark btn-sm" ><i className='fa fa-trash' aria-hidden='true'></i></button>
+                
+                <button className="btn btn-dark btn-sm"
+                onClick={() => confirmDelete(cliente.codcli)}> <i className='fa fa-trash' aria-hidden='true'></i>
+                </button>
               </td>
             </tr>
           ))}
